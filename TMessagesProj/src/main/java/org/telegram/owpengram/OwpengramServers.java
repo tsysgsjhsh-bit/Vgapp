@@ -60,18 +60,18 @@ public class OwpengramServers {
         customServersChangedListeners.remove(listener);
     }
 
-    private static final String DEFAULT_HOST = "152.89.254.50";
+    private static final String DEFAULT_HOST = "169.58.111.90";
     private static final int    DEFAULT_PORT = 2398;
 
     // OwpenGram's own production server RSA key.
     static final String OWPENGRAM_RSA_KEY =
         "-----BEGIN RSA PUBLIC KEY-----\n" +
-        "MIIBCgKCAQEAxUi0fsjiop7kTI+c+ATHwIs+XPcircj9WL/tNASH45/phiIvxhPU\n" +
-        "z4T6OgUfDVpQEC8SWCuq77aZAhnpZ0rfQ+h6vEv7X970wIAPT/hbyzekyWEFmH5Q\n" +
-        "RxSPrOMKF/V0wuTOVJcoHZW5r5cK7xsVe/otdYdOgt67kITS7pqoO1BlstRuOEHL\n" +
-        "jhaJ/40dXocrWpDQlJP2TZFwk5JF1Pbx/2mLr/asQapc/qbQP82b+iDLW8QIBT0f\n" +
-        "+xi4Js4k7Qo9kZSuUHUCDzmJt6Z0USBxxp/tSZRVjWRaT9ORDrdyfb/mKFSt9BtC\n" +
-        "B5VRJ1e0q7P/9/w21T0p9uV3eNXhnPnLFQIDAQAB\n" +
+        "MIIBCgKCAQEA5cPgbA0PRuYVJS5Tb+VaVr4M0R0GlHZTOYNWg+foWnij+CsC2Nl9\n" +
+        "jfOIYx6P4gKMEixZVjVRMmC5IWVaCKdklB57z5oY+cJDRlhYR3B+S7+y+2TGRhBt\n" +
+        "jDRMETNvjkWg6ORxAMwPRHCqZ9lGJBuxjV7RkfEpNUxBsHJbwnbniZ+smCLLUpDJ\n" +
+        "RKCN9FS8vEnYtU0sV35Jm2hNPKWxfObrwo/TmU/EiC+jI3y8/czoig88uyDbFUCk\n" +
+        "edpMngb6tcwyZnbow0RTsXraoB4zCcgTrXha7NnZ61Zn++5k8nWKnsjorsONnPS1\n" +
+        "Ib3xkL5fxLbBCOJVG0kWgjV8AXBYBR911wIDAQAB\n" +
         "-----END RSA PUBLIC KEY-----";
     // fingerprint == 0 -> native layer derives it from the PEM (see ConnectionsManager::applyServerConfig).
     static final long OWPENGRAM_RSA_FINGERPRINT = 0;
@@ -93,14 +93,14 @@ public class OwpengramServers {
     public static OwpengramServer owpengramServer() {
         OwpengramServer s = new OwpengramServer();
         s.id                 = ID_OWPENGRAM;
-        s.name               = "OwpenGram";
-        s.description        = "This is a test OwpenGram server.";
+        s.name               = "Vitogram";
+        s.description        = "Vitogram messaging server.";
         s.host               = DEFAULT_HOST;
         s.port               = DEFAULT_PORT;
         s.isOfficial         = true;
         s.isTelegram         = false;
         s.multiDc            = false;
-        s.mainDcId           = 1;
+        s.mainDcId           = 2;
         s.rsaPublicKey       = OWPENGRAM_RSA_KEY;
         s.rsaKeyFingerprint  = OWPENGRAM_RSA_FINGERPRINT;
         // Whatever the operator has since set on the server itself wins over
@@ -130,9 +130,7 @@ public class OwpengramServers {
 
     public static List<OwpengramServer> listServers() {
         List<OwpengramServer> result = new ArrayList<>();
-        result.add(telegramServer());
         result.add(owpengramServer());
-        result.addAll(loadCustomServers());
         return result;
     }
 
@@ -225,7 +223,7 @@ public class OwpengramServers {
     }
 
     public static OwpengramServer getServerForAccount(int accountNum) {
-        return getServerById(getServerIdForAccount(accountNum));
+        return owpengramServer();
     }
 
     public static boolean hasServerForAccount(int accountNum) {
@@ -389,10 +387,9 @@ public class OwpengramServers {
      * reset auth keys so an already-authorized session keeps working.
      */
     public static void applyStoredServerToAccount(int accountNum) {
-        OwpengramServer server = getServerForAccount(accountNum);
-        if (server != null) {
-            applyServerToAccount(server, accountNum, false);
-        }
+        OwpengramServer server = owpengramServer();
+        setServerForAccount(server.id, accountNum);
+        applyServerToAccount(server, accountNum, false);
     }
 
     // --- Helpers ---

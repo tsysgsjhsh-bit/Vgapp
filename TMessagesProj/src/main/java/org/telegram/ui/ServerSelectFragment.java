@@ -234,7 +234,6 @@ public class ServerSelectFragment extends BaseFragment {
             rows.addAll(custom);
         }
 
-        rows.add("add");
         rows.add("spacer");
         return rows;
     }
@@ -246,10 +245,7 @@ public class ServerSelectFragment extends BaseFragment {
         if (o instanceof OwpengramServer) {
             presentFragment(new ServerInfoFragment((OwpengramServer) o, this::reloadServers));
         } else if ("add".equals(o)) {
-            presentFragment(new AddServerFragment(null, saved -> {
-                reloadServers();
-                pingServer(saved);
-            }));
+            return;
         }
     }
 

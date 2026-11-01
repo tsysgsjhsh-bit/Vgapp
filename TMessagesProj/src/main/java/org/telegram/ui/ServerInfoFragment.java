@@ -87,11 +87,7 @@ public class ServerInfoFragment extends BaseFragment {
         content.addView(buildSectionHeader(context, "Accounts"));
         content.addView(buildAccountsCard(context));
 
-        // Action buttons for custom servers
-        if (!server.isOfficial) {
-            content.addView(buildSectionHeader(context, ""));
-            content.addView(buildActionButtons(context));
-        }
+        // Vitogram uses a fixed server; server editing and deletion are disabled.
 
         fragmentView = new FrameLayout(context);
         ((FrameLayout) fragmentView).addView(scroll, LayoutHelper.createFrame(
@@ -304,8 +300,7 @@ public class ServerInfoFragment extends BaseFragment {
                 Theme.getColor(Theme.key_windowBackgroundWhite),
                 Theme.getColor(Theme.key_listSelector)));
         editBtn.setPadding(dp(12), dp(12), dp(12), dp(12));
-        editBtn.setOnClickListener(v ->
-                presentFragment(new AddServerFragment(server, saved -> finishFragment())));
+        editBtn.setVisibility(View.GONE);
 
         TextView deleteBtn = new TextView(context);
         deleteBtn.setText("Delete");

@@ -1086,17 +1086,19 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     }
 
     private BaseFragment getClientNotActivatedFragment() {
-        // Resuming a mid-login flow - server already chosen, continue where we left off
+        // Resume an unfinished login for this account slot.
         if (LoginActivity.loadCurrentState(false, currentAccount).getInt("currentViewNum", 0) != 0) {
             return new LoginActivity();
         }
-        // Adding a second account - skip intro, show server picker directly
+        // Vitogram uses one fixed server for every account.
         for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
             if (a != currentAccount && UserConfig.getInstance(a).isClientActivated()) {
-                return new ServerSelectFragment();
+                if (LoginActivity.loadCurrentState(true, currentAccount).getInt("currentViewNum", 0) != 0) {
+                    return new LoginActivity(currentAccount);
+                }
+                return new LoginActivity(currentAccount);
             }
         }
-        // Fresh install - show intro; server picker is triggered from "Start Messaging"
         return new IntroActivity();
     }
 
@@ -1339,50 +1341,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
      * vector, not a convenience worth the risk.
      */
     private void handleOwpengramAddServerLink(Uri data) {
-        String host = data.getQueryParameter("host");
-        String portParam = data.getQueryParameter("port");
-
-        // Only host+port are ever read from this link -- deliberately never
-        // name/description/key/dc/multidc, even if a link happens to carry
-        // them. Whoever crafts a link (a forum post, a chat message, an
-        // intercepted share) fully controls its contents; if a forged key
-        // pointed at an attacker's own host were accepted from it, the app
-        // would trust that as "this server's identity" outright -- a real
-        // MITM vector, not a hypothetical one. host+port alone can't
-        // misrepresent anything: name/description/key/DC always come from
-        // whatever actually answers at that address (the same
-        // fetchPublicKeyForAddress() discovery a hand-typed address
-        // triggers, via the empty rsaPublicKey below), never from the link.
-        if (TextUtils.isEmpty(host) || TextUtils.isEmpty(portParam)) {
-            showOwpengramAddServerLinkErrorDialog();
-            return;
-        }
-        int port;
-        try {
-            port = Integer.parseInt(portParam.trim());
-            if (port < 1 || port > 65535) throw new NumberFormatException();
-        } catch (NumberFormatException e) {
-            showOwpengramAddServerLinkErrorDialog();
-            return;
-        }
-
-        // Prefill only -- id stays unset so AddServerFragment.save() treats
-        // this as a brand-new server (addCustomServer mints the id) rather
-        // than an edit of an existing one (updateCustomServer, keyed by id).
-        OwpengramServer server = new OwpengramServer();
-        // OwpengramServer.name has no field initializer (defaults to null in
-        // Java, unlike description/rsaPublicKey which do) -- set it
-        // explicitly so AddServerFragment's nameField.setText(editingServer.name)
-        // gets an empty string, not null.
-        server.name = "";
-        server.host = host.trim();
-        server.port = port;
-
-        // fetchPublicKeyForAddress() inside AddServerFragment's own prefill
-        // handles the "key missing, ask the server" case; nothing extra to
-        // trigger from here.
-        presentFragment(new AddServerFragment(server, saved ->
-                Toast.makeText(LaunchActivity.this, "Server \"" + saved.name + "\" added", Toast.LENGTH_SHORT).show()));
+        showOwpengramOtherServerDialog("");
     }
 
     /** Shown when an owpg://addserver link is missing required fields or has an invalid port/key. */
@@ -2145,7 +2104,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                         if (progress != null) {
                                             progress.end();
                                         }
-                                        handleOwpengramAddServerLink(data);
+                                        showOwpengramOtherServerDialog("");
                                         intent.setAction(null);
                                         return false;
                                     }

@@ -124,7 +124,7 @@ public class LogoutActivity extends BaseFragment {
                 // is enforced per-server (Telegram only) in ServerSelectFragment.
                 int availableAccount = org.telegram.owpengram.OwpengramServers.firstFreeAccountSlot();
                 if (availableAccount >= 0) {
-                    presentFragment(new ServerSelectFragment(availableAccount));
+                    presentFragment(new LoginActivity(availableAccount));
                 } else {
                     LimitReachedBottomSheet limitReachedBottomSheet = new LimitReachedBottomSheet(this, getContext(), TYPE_ACCOUNTS, currentAccount, null);
                     showDialog(limitReachedBottomSheet);

@@ -627,7 +627,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
                 // is enforced per-server (Telegram only) in ServerSelectFragment.
                 int availableAccount = org.telegram.owpengram.OwpengramServers.firstFreeAccountSlot();
                 if (availableAccount >= 0) {
-                    presentFragment(new ServerSelectFragment(availableAccount));
+                    presentFragment(new LoginActivity(availableAccount));
                 } else {
                     showDialog(new LimitReachedBottomSheet(this, getContext(), TYPE_ACCOUNTS, currentAccount, null));
                 }
